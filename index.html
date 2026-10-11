@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Моя команда Atomy</title>
+<style>
+/* Layout: sticky top bar with tabs → toolbar → card grid; detail opens in a side sheet (bottom sheet on phones) */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --surface-2:#eaefe9; --line:#d7ded5;
+  --ink:#1c2a2a; --muted:#5d6b69; --accent:#1f6f5c; --accent-ink:#ffffff; --accent-soft:#d6ebe3;
+  --warm:#e8894f; --warm-soft:#fbe6d8; --danger:#b8402f;
+  --display:"Unbounded","Manrope",system-ui,sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111817; --surface:#18221f; --surface-2:#1f2b28; --line:#2c3b37;
+  --ink:#e6eeea; --muted:#97a8a3; --accent:#58c2a2; --accent-ink:#0d1a16; --accent-soft:#1d3a32;
+  --warm:#f0a070; --warm-soft:#3a2a1f; --danger:#ef7a66; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111817; --surface:#18221f; --surface-2:#1f2b28; --line:#2c3b37;
+  --ink:#e6eeea; --muted:#97a8a3; --accent:#58c2a2; --accent-ink:#0d1a16; --accent-soft:#1d3a32;
+  --warm:#f0a070; --warm-soft:#3a2a1f; --danger:#ef7a66; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px}
+h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;letter-spacing:-.01em}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink);font-family:var(--display);font-size:15px;flex:none}
+.brand h1{font-size:16px}
+.brand small{display:block;color:var(--muted);font-size:12px;font-family:var(--body);font-weight:500}
+.tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px}
+.tab{border:0;background:none;padding:7px 14px;border-radius:999px;font-weight:600;color:var(--muted);font-size:14px;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0/.08)}
+.tab .n{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:500;margin-left:4px}
+
+/* banners */
+.viewing{background:var(--warm-soft);border-bottom:1px solid var(--line)}
+.viewing .wrap{display:flex;align-items:center;gap:12px;padding-block:8px;font-weight:600;font-size:14px;flex-wrap:wrap}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:700;padding:0;text-decoration:underline;text-underline-offset:3px}
+
+main{padding-block:24px 64px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.toolbar h2{font-size:20px;margin-right:auto}
+.search{flex:1 1 220px;max-width:320px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);border-radius:999px}
+.btn{border:1px solid transparent;background:var(--accent);color:var(--accent-ink);padding:10px 18px;border-radius:999px;font-weight:700;white-space:nowrap}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.danger{background:none;color:var(--danger);border-color:var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:8px 14px;font-weight:600;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;text-align:left;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent)}
+.card .row{display:flex;align-items:center;gap:10px;min-width:0}
+.av{width:38px;height:38px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;flex:none;font-size:14px}
+.card .nm{font-weight:700;font-size:15.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .sub{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meter{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;gap:8px}
+.meta b{color:var(--ink)}
+.stage{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.stage.s1{background:var(--warm-soft);color:var(--warm)}
+.stage.s3,.stage.s4{background:var(--accent-soft);color:var(--accent)}
+.due{color:var(--warm);font-weight:700}
+
+/* empty */
+.empty{border:1.5px dashed var(--line);border-radius:var(--r);padding:40px 20px;text-align:center;color:var(--muted);display:grid;gap:12px;justify-items:center}
+.empty h3{font-size:16px;color:var(--ink)}
+.empty p{margin:0;max-width:46ch}
+
+/* matrix table */
+.tablebox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
+th,td{border-bottom:1px solid var(--line);padding:6px;text-align:center}
+thead th{vertical-align:bottom;font-weight:600;color:var(--muted);height:150px;white-space:nowrap}
+thead th .v{writing-mode:vertical-rl;transform:rotate(180deg);display:inline-block;max-height:140px;overflow:hidden;text-overflow:ellipsis}
+th.fio,td.fio{position:sticky;left:0;background:var(--surface);text-align:left;min-width:170px;max-width:220px;z-index:1;border-right:1px solid var(--line)}
+td.fio button{border:0;background:none;font-weight:700;text-align:left;padding:4px;color:var(--ink)}
+thead th.grp{height:auto;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--surface-2);border-right:1px solid var(--line)}
+td.pct{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tick{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line);background:none;display:grid;place-items:center;margin:auto;padding:0}
+.tick[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tick svg{width:14px;height:14px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgb(10 20 18/.45);z-index:20}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:21;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgb(0 0 0/.18)}
+.sheet header{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.sheet header h2{font-size:17px;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.x{border:0;background:var(--surface-2);width:34px;height:34px;border-radius:50%;font-size:18px;line-height:1;flex:none}
+.sheet .body{overflow-y:auto;padding:20px;display:grid;gap:22px;flex:1}
+.sheet footer{padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--surface);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sheet footer .sp{margin-right:auto}
+@media (max-width:640px){.sheet{top:auto;height:92%;border-radius:18px 18px 0 0}}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fields .full{grid-column:1/-1}
+@media (max-width:480px){.fields{grid-template-columns:1fr}}
+label.f{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);min-width:0}
+label.f input,label.f select,label.f textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;font-weight:500;width:100%;min-width:0}
+textarea{resize:vertical;min-height:80px}
+.sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;font-family:var(--body);font-weight:800}
+.sec h3 span{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0}
+.checks{display:grid;gap:6px}
+.chk{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;text-align:left;width:100%;font-weight:600}
+.chk .tick{margin:0;flex:none}
+.chk[aria-checked="true"]{border-color:var(--accent-soft)}
+.chk[aria-checked="true"] .lbl{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--accent)}
+.bigmeter{display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.bigmeter .top2{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bigmeter b{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+
+/* register */
+.reg{max-width:460px;margin:8vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;display:grid;gap:18px}
+.reg h2{font-size:24px}
+.reg p{margin:0;color:var(--muted)}
+.note{font-size:13px;color:var(--muted)}
+.err{color:var(--danger);font-weight:600;font-size:14px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;z-index:40;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.stat b{display:block;font-family:var(--display);font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px;font-weight:600}
+@media (max-width:560px){.tabs{width:100%;justify-content:space-between}.tab{flex:1;padding:7px 8px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><div class="logo">A</div><div style="min-width:0"><h1>Моя команда</h1><small id="whoami">Загружаю…</small></div></div>
+    <nav class="tabs" role="tablist" id="tabs" hidden>
+      <button class="tab" role="tab" data-tab="partners" aria-selected="true">Партнёры<span class="n" id="nP"></span></button>
+      <button class="tab" role="tab" data-tab="clients" aria-selected="false">Клиенты<span class="n" id="nC"></span></button>
+      <button class="tab" role="tab" data-tab="team" aria-selected="false" id="teamTab" hidden>Вся команда</button>
+      <button class="tab" role="tab" data-tab="profile" aria-selected="false">Профиль</button>
+    </nav>
+    <button class="btn ghost" id="logout" hidden style="padding:7px 14px;font-size:13px">Выйти</button>
+  </div>
+</header>
+<div class="viewing" id="viewing" hidden><div class="wrap"><span id="viewingTxt"></span><button class="linkbtn" id="backMe">Вернуться к себе</button></div></div>
+
+<main class="wrap" id="main">
+  <div class="empty" id="boot"><h3>Подключаюсь к базе…</h3><p>Здесь появятся ваши партнёры и клиенты.</p></div>
+</main>
+
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ====== НАСТРОЙКИ: вставьте сюда данные из Firebase ====== */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDFiyP8X3kATRR3EMTB-f2lfCyvWh7A1K8",
+  authDomain: "atomy-komanda.firebaseapp.com",
+  projectId: "atomy-komanda",
+  storageBucket: "atomy-komanda.firebasestorage.app",
+  messagingSenderId: "952694977815",
+  appId: "1:952694977815:web:c21eff4ae1e763a2457352"
+};
+/* Email руководителя: этот человек видит вкладку «Вся команда» */
+const LEADER_EMAILS = ["dasha.galchenko@yahoo.com"];
+/* ========================================================= */
+const STAGES=[
+ {k:"start",t:"Старт",items:[["cab","Кабинет активирован"],["order","Первый заказ"],["goals","Цели определены"],["unbox","Распаковку снял"],["hemo","ХемоХим пробовал"]]},
+ {k:"know",t:"Изучил",items:[["infoCo","Инфу о компании изучил"],["infoProd","Инфу о продукте изучил"],["mplan","Маркетинг план изучил"],["reg","Умеет делать регистрацию"]]},
+ {k:"work",t:"Работа",items:[["content","Контент выставляет"],["list","Список знакомых"],["meet","Встречи назначил"],["calls","Созвоны делает"],["cchat","Клиентский чат завёл"],["lottery","Лотереи / розыгрыши проводит"],["report","Отчёт по ежедневной работе делает"]]},
+ {k:"team",t:"В команде",items:[["leader","Лидер чат проверил, дал рекомендации"],["active","В командных чатах активно проявляется"],["callsVisit","Созвоны посещает"],["offline","Офлайн встречи посещает"],["conf","Конференции посещает"]]},
+ {k:"result",t:"Результат",items:[["l300","Личка 300 накоплено"]]}
+];
+const ALL=STAGES.flatMap(s=>s.items);
+const TOTAL=ALL.length;
+const CLIENT_STATUS=["Новый","Думает","Купил","Постоянный","Не актуален"];
+const TICK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+
+const S={db:null,user:null,uid:null,isOwner:false,me:null,viewUid:null,viewName:"",tab:"partners",
+  partners:[],clients:[],members:[],unsub:[],q:"",pView:"cards",cFilter:"all",readOnly:false};
+const $=s=>document.querySelector(s);
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,"");else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e};
+const initials=n=>(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
+const today=()=>new Date().toISOString().slice(0,10);
+const fmtDate=d=>d?new Date(d+"T00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"short"}):"";
+const done=p=>ALL.filter(([k])=>p.checks&&p.checks[k]).length;
+function stageOf(p){const n=done(p);if(n===0)return["Новичок","s0"];if(n<8)return["Стартует","s1"];if(n<16)return["В работе","s2"];if(n<TOTAL)return["Почти у цели","s3"];return["Всё пройдено","s4"]}
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
+function plural(n,a,b,c){n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return c;if(n1>1&&n1<5)return b;if(n1===1)return a;return c}
+function base(){return S.db.collection("members").doc(S.viewUid)}
+
+/* ---------- boot ---------- */
+try{const fl=document.createElement("link");fl.rel="stylesheet";fl.href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap";document.head.appendChild(fl)}catch{}
+function bootFail(t,m){$("#main").replaceChildren(el("div",{class:"empty"},el("h3",{},t),el("p",{},m)));$("#whoami").textContent="Нет подключения"}
+const ERR={"auth/email-already-in-use":"Этот email уже зарегистрирован. Нажмите «Войти».","auth/invalid-email":"Проверьте email, в нём ошибка.","auth/weak-password":"Пароль слишком короткий, нужно минимум 6 символов.","auth/invalid-credential":"Неверный email или пароль.","auth/wrong-password":"Неверный email или пароль.","auth/user-not-found":"Такой email не зарегистрирован.","auth/too-many-requests":"Слишком много попыток. Подождите пару минут.","auth/network-request-failed":"Нет связи с сервером. Проверьте интернет."};
+const errText=e=>ERR[e&&e.code]||"Не получилось. Попробуйте ещё раз.";
+let AUTH;
+if(!window.firebase||FIREBASE_CONFIG.apiKey.startsWith("ВСТАВЬТЕ")){bootFail("Сайт ещё не настроен","Вставьте настройки Firebase в файл index.html (см. инструкцию).")}
+else{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  AUTH=firebase.auth();AUTH.languageCode="ru";
+  S.db=firebase.firestore();
+  AUTH.onAuthStateChanged(async u=>{
+    if(!u){renderLogin("login");return}
+    S.uid=u.uid;S.email=(u.email||"").toLowerCase();S.isOwner=LEADER_EMAILS.map(x=>x.toLowerCase()).includes(S.email);
+    $("#logout").hidden=false;
+    try{const snap=await S.db.doc("members/"+S.uid).get();if(snap.exists){S.me=snap.data();start()}else renderRegister()}
+    catch(e){console.error(e);bootFail("Не удалось загрузить данные","Обновите страницу. Если не поможет, напишите Даше.")}
+  });
+}
+$("#logout").onclick=()=>AUTH.signOut().then(()=>location.reload());
+
+function renderLogin(mode){
+  $("#whoami").textContent=mode==="login"?"Вход":"Регистрация";
+  const isReg=mode==="reg";
+  const f=el("form",{class:"reg"},
+    el("h2",{},isReg?"Регистрация в команде":"Вход в кабинет"),
+    el("p",{},isReg?"Придумайте пароль. Дальше вы будете входить по email и паролю с любого устройства.":"Войдите, чтобы вести своих партнёров и клиентов."),
+    el("label",{class:"f"},"Email",el("input",{id:"aEmail",type:"email",required:true,autocomplete:"email",placeholder:"you@mail.ru"})),
+    el("label",{class:"f"},"Пароль",el("input",{id:"aPass",type:"password",required:true,minlength:"6",autocomplete:isReg?"new-password":"current-password",placeholder:isReg?"Минимум 6 символов":""})),
+    el("div",{class:"err",id:"aErr",hidden:true}),
+    el("button",{class:"btn",type:"submit",id:"aBtn"},isReg?"Создать аккаунт":"Войти"),
+    el("div",{style:"display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"},
+      el("button",{type:"button",class:"linkbtn",onclick:()=>renderLogin(isReg?"login":"reg")},isReg?"У меня уже есть аккаунт":"Зарегистрироваться"),
+      isReg?null:el("button",{type:"button",class:"linkbtn",onclick:async()=>{const em=$("#aEmail").value.trim();const r=$("#aErr");r.hidden=false;
+        if(!em){r.textContent="Впишите email, и мы пришлём ссылку для нового пароля.";return}
+        try{await AUTH.sendPasswordResetEmail(em);r.textContent="Письмо для смены пароля отправлено на "+em+". Проверьте и папку «Спам»."}catch(e){r.textContent=errText(e)}}},"Забыли пароль?")));
+  f.addEventListener("submit",async e=>{e.preventDefault();const b=$("#aBtn");b.disabled=true;
+    const em=$("#aEmail").value.trim(),pw=$("#aPass").value;
+    try{if(isReg)await AUTH.createUserWithEmailAndPassword(em,pw);else await AUTH.signInWithEmailAndPassword(em,pw)}
+    catch(err){b.disabled=false;const r=$("#aErr");r.hidden=false;r.textContent=errText(err)}});
+  $("#main").replaceChildren(f);
+}
+
+function renderRegister(){
+  $("#whoami").textContent="Регистрация";
+  const f=el("form",{class:"reg"},
+    el("h2",{},"Добро пожаловать в команду"),
+    el("p",{},"Заполните профиль один раз. Дальше вы будете вести здесь своих партнёров и клиентов, а данные сохранятся."),
+    el("label",{class:"f"},"Имя и фамилия",el("input",{id:"rName",required:true,placeholder:"Анна Иванова",autocomplete:"name"})),
+    el("div",{class:"fields"},
+      el("label",{class:"f"},"Телефон",el("input",{id:"rPhone",placeholder:"+7 900 000-00-00",inputmode:"tel"})),
+      el("label",{class:"f"},"ID в Атоми",el("input",{id:"rAid",placeholder:"12345678",inputmode:"numeric"}))),
+    el("label",{class:"f"},"Город",el("input",{id:"rCity",placeholder:"Ростов-на-Дону"})),
+    el("label",{class:"f"},"Кто вас пригласил",el("input",{id:"rSponsor",placeholder:"Имя наставника"})),
+    el("div",{class:"err",id:"rErr",hidden:true}),
+    el("button",{class:"btn",type:"submit",id:"rBtn"},"Сохранить и начать"));
+  f.addEventListener("submit",async e=>{e.preventDefault();const b=$("#rBtn");b.disabled=true;
+    const me={name:$("#rName").value.trim(),phone:$("#rPhone").value.trim(),atomyId:$("#rAid").value.trim(),city:$("#rCity").value.trim(),sponsor:$("#rSponsor").value.trim(),email:S.email,createdAt:new Date().toISOString()};
+    if(!me.name){b.disabled=false;return}
+    try{await S.db.doc("members/"+S.uid).set(me);S.me=me;start();toast("Профиль создан")}
+    catch(err){console.error(err);b.disabled=false;const r=$("#rErr");r.hidden=false;r.textContent="Не получилось сохранить. Проверьте интернет и попробуйте ещё раз."}});
+  $("#main").replaceChildren(f);
+}
+
+function start(){
+  $("#tabs").hidden=false;$("#teamTab").hidden=!S.isOwner;
+  S.viewUid=S.uid;S.viewName=S.me.name;
+  $("#whoami").textContent=S.me.name+(S.isOwner?" · руководитель":"");
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+  $("#backMe").onclick=()=>viewMember(S.uid,S.me.name);
+  subscribe();
+  if(S.isOwner)S.db.collection("members").onSnapshot(s=>{S.members=s.docs.map(d=>({id:d.id,...d.data()}));if(S.tab==="team")render()},()=>{});
+  render();
+}
+function subscribe(){
+  S.unsub.forEach(u=>u());S.unsub=[];S.partners=[];S.clients=[];
+  S.unsub.push(base().collection("partners").onSnapshot(s=>{S.partners=s.docs.map(d=>({id:d.id,...d.data()}));counts();if(S.tab==="partners")render();refreshSheet()},e=>console.warn(e)));
+  S.unsub.push(base().collection("clients").onSnapshot(s=>{S.clients=s.docs.map(d=>({id:d.id,...d.data()}));counts();if(S.tab==="clients")render();refreshSheet()},e=>console.warn(e)));
+}
+function counts(){$("#nP").textContent=S.partners.length||"";$("#nC").textContent=S.clients.length||""}
+function viewMember(uid,name){S.viewUid=uid;S.viewName=name;const other=uid!==S.uid;$("#viewing").hidden=!other;$("#viewingTxt").textContent="Вы смотрите данные: "+name;subscribe();setTab("partners")}
+function setTab(t){S.tab=t;S.q="";document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));render()}
+
+/* ---------- render ---------- */
+function render(){
+  const m=$("#main");
+  if(S.tab==="partners")m.replaceChildren(...renderPartners());
+  else if(S.tab==="clients")m.replaceChildren(...renderClients());
+  else if(S.tab==="team")renderTeam();
+  else m.replaceChildren(renderProfile());
+}
+function searchBox(){const i=el("input",{class:"search",id:"q",type:"search",placeholder:"Поиск по имени или телефону",value:S.q});i.addEventListener("input",()=>{S.q=i.value;const pos=i.selectionStart;render();const n=$("#q");n.focus();n.setSelectionRange(pos,pos)});return i}
+const match=x=>{const q=S.q.trim().toLowerCase();return !q||[x.name,x.phone,x.atomyId,x.city].some(v=>(v||"").toLowerCase().includes(q))};
+
+function renderPartners(){
+  const list=S.partners.filter(match).sort((a,b)=>(a.name||"").localeCompare(b.name||"","ru"));
+  const seg=el("div",{class:"seg"},
+    el("button",{"aria-pressed":S.pView==="cards",onclick:()=>{S.pView="cards";render()}},"Карточки"),
+    el("button",{"aria-pressed":S.pView==="table",onclick:()=>{S.pView="table";render()}},"Таблица"));
+  const tb=el("div",{class:"toolbar"},el("h2",{},"Партнёры"),searchBox(),seg,el("button",{class:"btn",onclick:()=>openPartner(null)},"+ Партнёр"));
+  if(!S.partners.length)return[tb,el("div",{class:"empty"},el("h3",{},"Пока ни одного партнёра"),el("p",{},"Добавьте партнёра и отмечайте его шаги: кабинет, первый заказ, цели, распаковка и ещё 18 пунктов из таблицы новичка."),el("button",{class:"btn",onclick:()=>openPartner(null)},"Добавить первого партнёра"))];
+  if(!list.length)return[tb,el("div",{class:"empty"},el("p",{},"Никого не нашлось по запросу «"+S.q+"»."))];
+  const avg=Math.round(list.reduce((s,p)=>s+done(p),0)/list.length/TOTAL*100);
+  const stats=el("div",{class:"stats"},
+    stat(list.length,plural(list.length,"партнёр","партнёра","партнёров")),
+    stat(avg+"%","средний прогресс"),
+    stat(list.filter(p=>p.checks&&p.checks.order).length,"сделали первый заказ"),
+    stat(list.filter(p=>p.checks&&p.checks.l300).length,"накопили личку 300"));
+  return[tb,stats,S.pView==="table"?matrix(list):el("div",{class:"grid"},list.map(partnerCard))];
+}
+function stat(v,l){return el("div",{class:"stat"},el("b",{},v),el("span",{},l))}
+function partnerCard(p){
+  const n=done(p),[st,sc]=stageOf(p);
+  return el("button",{class:"card",onclick:()=>openPartner(p.id)},
+    el("div",{class:"row"},el("div",{class:"av"},initials(p.name)),el("div",{style:"min-width:0;flex:1"},el("div",{class:"nm"},p.name||"Без имени"),el("div",{class:"sub"},[p.phone,p.city].filter(Boolean).join(" · ")||"Контакты не указаны")),el("span",{class:"stage "+sc},st)),
+    el("div",{class:"meter"},el("i",{style:`width:${n/TOTAL*100}%`})),
+    el("div",{class:"meta"},el("span",{},"Шагов: ",el("b",{},n)," из "+TOTAL),el("span",{},nextStep(p))));
+}
+function nextStep(p){const f=ALL.find(([k])=>!(p.checks&&p.checks[k]));return f?"Далее: "+f[1].toLowerCase():"Готово"}
+function matrix(list){
+  const gr=el("tr",{},el("th",{class:"fio grp"},""),STAGES.map(s=>el("th",{class:"grp",colspan:s.items.length},s.t)),el("th",{class:"grp"},""));
+  const hr=el("tr",{},el("th",{class:"fio"},"ФИО"),ALL.map(([,l])=>el("th",{title:l},el("span",{class:"v"},l))),el("th",{},el("span",{class:"v"},"Прогресс")));
+  const rows=list.map(p=>el("tr",{},el("td",{class:"fio"},el("button",{onclick:()=>openPartner(p.id)},p.name||"Без имени")),
+    ALL.map(([k,l])=>{const on=!!(p.checks&&p.checks[k]);return el("td",{},el("button",{class:"tick",role:"checkbox","aria-checked":on,"aria-label":(p.name||"")+": "+l,title:l,onclick:()=>toggle(p,k)},on?el("span",{}):null))}),
+    el("td",{class:"pct"},Math.round(done(p)/TOTAL*100)+"%")));
+  rows.forEach(r=>r.querySelectorAll('.tick[aria-checked="true"]').forEach(t=>t.innerHTML=TICK));
+  return el("div",{class:"tablebox"},el("table",{},el("thead",{},gr,hr),el("tbody",{},rows)));
+}
+const pending=new Map();
+async function toggle(p,k){
+  const checks={...(p.checks||{})};checks[k]=!checks[k];p.checks=checks;render();refreshSheet();
+  clearTimeout(pending.get(p.id));
+  pending.set(p.id,setTimeout(async()=>{try{await base().collection("partners").doc(p.id).update({checks:p.checks,updatedAt:new Date().toISOString()})}catch(e){toast("Не сохранилось, попробуйте ещё раз")}},350));
+}
+
+function renderClients(){
+  const now=today();
+  const isDue=c=>c.nextContact&&c.nextContact<=now&&c.status!=="Не актуален";
+  let list=S.clients.filter(match);
+  if(S.cFilter==="due")list=list.filter(isDue);else if(S.cFilter!=="all")list=list.filter(c=>c.status===S.cFilter);
+  list.sort((a,b)=>(isDue(b)-isDue(a))||((a.nextContact||"9")<(b.nextContact||"9")?-1:1));
+  const tb=el("div",{class:"toolbar"},el("h2",{},"Клиенты"),searchBox(),el("button",{class:"btn",onclick:()=>openClient(null)},"+ Клиент"));
+  if(!S.clients.length)return[tb,el("div",{class:"empty"},el("h3",{},"Клиентов пока нет"),el("p",{},"Записывайте, кто что купил и когда напомнить о себе. Клиенты, которым пора позвонить, всегда будут наверху."),el("button",{class:"btn",onclick:()=>openClient(null)},"Добавить первого клиента"))];
+  const dueN=S.clients.filter(isDue).length;
+  const chips=el("div",{class:"chips"},[["all","Все "+S.clients.length],["due","Пора связаться "+dueN],...CLIENT_STATUS.map(s=>[s,s])].map(([v,l])=>el("button",{class:"chip","aria-pressed":S.cFilter===v,onclick:()=>{S.cFilter=v;render()}},l)));
+  const grid=list.length?el("div",{class:"grid"},list.map(c=>el("button",{class:"card",onclick:()=>openClient(c.id)},
+    el("div",{class:"row"},el("div",{class:"av"},initials(c.name)),el("div",{style:"min-width:0;flex:1"},el("div",{class:"nm"},c.name||"Без имени"),el("div",{class:"sub"},c.phone||"Телефон не указан")),el("span",{class:"stage "+({"Постоянный":"s4","Купил":"s3","Новый":"s1"}[c.status]||"s0")},c.status||"Новый")),
+    c.products?el("div",{class:"sub",style:"white-space:normal"},"Покупает: "+c.products):null,
+    el("div",{class:"meta"},el("span",{},c.lastOrder?"Заказ: "+fmtDate(c.lastOrder):"Заказов не было"),c.nextContact?el("span",{class:isDue(c)?"due":""},(isDue(c)?"Связаться: ":"Напомнить: ")+fmtDate(c.nextContact)):el("span",{},""))))):el("div",{class:"empty"},el("p",{},"В этом фильтре пусто."));
+  return[tb,chips,grid];
+}
+
+function renderProfile(){
+  const f=el("form",{class:"reg",style:"margin-top:0"},el("h2",{},"Мой профиль"),
+    el("label",{class:"f"},"Имя и фамилия",el("input",{id:"pName",value:S.me.name||"",required:true})),
+    el("div",{class:"fields"},el("label",{class:"f"},"Телефон",el("input",{id:"pPhone",value:S.me.phone||""})),el("label",{class:"f"},"ID в Атоми",el("input",{id:"pAid",value:S.me.atomyId||""}))),
+    el("label",{class:"f"},"Город",el("input",{id:"pCity",value:S.me.city||""})),
+    el("label",{class:"f"},"Кто вас пригласил",el("input",{id:"pSponsor",value:S.me.sponsor||""})),
+    el("button",{class:"btn",type:"submit"},"Сохранить"));
+  f.addEventListener("submit",async e=>{e.preventDefault();const u={name:$("#pName").value.trim(),phone:$("#pPhone").value.trim(),atomyId:$("#pAid").value.trim(),city:$("#pCity").value.trim(),sponsor:$("#pSponsor").value.trim()};if(!u.name)return;
+    try{await S.db.doc("members/"+S.uid).update(u);Object.assign(S.me,u);$("#whoami").textContent=S.me.name+(S.isOwner?" · руководитель":"");toast("Сохранено")}catch{toast("Не сохранилось")}});
+  return f;
+}
+
+async function renderTeam(){
+  const m=$("#main");
+  const tb=el("div",{class:"toolbar"},el("h2",{},"Вся команда"));
+  if(!S.members.length){m.replaceChildren(tb,el("div",{class:"empty"},el("h3",{},"Здесь появятся ваши партнёры"),el("p",{},"Когда партнёр откроет ссылку и зарегистрируется, он появится в этом списке. Вы сможете открыть его клиентов и партнёров.")));return}
+  const grid=el("div",{class:"grid"});
+  m.replaceChildren(tb,el("p",{class:"note",style:"margin:-8px 0 16px"},"Нажмите на человека, чтобы посмотреть и поправить его клиентов и партнёров."),grid);
+  for(const mem of [...S.members].sort((a,b)=>(a.id===S.uid?-1:b.id===S.uid?1:(a.name||"").localeCompare(b.name||"","ru")))){
+    const sub=el("div",{class:"meta"},el("span",{},"Считаю…"));
+    grid.append(el("button",{class:"card",onclick:()=>viewMember(mem.id,mem.name)},
+      el("div",{class:"row"},el("div",{class:"av"},initials(mem.name)),el("div",{style:"min-width:0;flex:1"},el("div",{class:"nm"},(mem.name||"Без имени")+(mem.id===S.uid?" (вы)":"")),el("div",{class:"sub"},[mem.city,mem.atomyId&&("ID "+mem.atomyId),mem.phone].filter(Boolean).join(" · ")||"—"))),
+      mem.sponsor?el("div",{class:"sub"},"Пригласил(а): "+mem.sponsor):null,sub));
+    const r=S.db.collection("members").doc(mem.id);
+    Promise.all([r.collection("partners").get(),r.collection("clients").get()]).then(([p,c])=>{
+      const avg=p.size?Math.round(p.docs.reduce((s,d)=>s+done(d.data()),0)/p.size/TOTAL*100):0;
+      sub.replaceChildren(el("span",{},"Партнёров: ",el("b",{},p.size)),el("span",{},"Клиентов: ",el("b",{},c.size)),el("span",{},"Прогресс: ",el("b",{},avg+"%")))}).catch(()=>sub.replaceChildren(el("span",{},"Нет данных")));
+  }
+}
+
+/* ---------- sheets ---------- */
+let sheetState=null;
+function closeSheet(){sheetState=null;$("#sheetRoot").replaceChildren()}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheetState)closeSheet()});
+function refreshSheet(){if(sheetState&&sheetState.kind==="p"&&sheetState.id)drawPartnerChecks()}
+function sheet(title,body,footer){
+  $("#sheetRoot").replaceChildren(el("div",{class:"scrim",onclick:closeSheet}),
+    el("aside",{class:"sheet",role:"dialog","aria-modal":"true","aria-label":title},
+      el("header",{},el("h2",{},title),el("button",{class:"x","aria-label":"Закрыть",onclick:closeSheet},"×")),
+      el("div",{class:"body"},body),el("footer",{},footer)));
+}
+function confirmDelete(btn,fn){if(btn.dataset.arm){fn();return}btn.dataset.arm="1";btn.textContent="Точно удалить?";setTimeout(()=>{if(btn.isConnected){delete btn.dataset.arm;btn.textContent="Удалить"}},3000)}
+
+function openPartner(id){
+  const p=id?S.partners.find(x=>x.id===id):{checks:{}};if(!p)return;
+  sheetState={kind:"p",id};
+  const fld=(lab,key,attrs={})=>el("label",{class:"f "+(attrs.full?"full":"")},lab,el("input",{id:"pf_"+key,value:p[key]||"",...attrs,full:false}));
+  const fields=el("div",{class:"fields"},
+    el("label",{class:"f full"},"ФИО",el("input",{id:"pf_name",value:p.name||"",placeholder:"Имя и фамилия партнёра"})),
+    fld("Телефон","phone",{inputmode:"tel",placeholder:"+7…"}),fld("ID в Атоми","atomyId",{inputmode:"numeric"}),
+    fld("Город","city"),el("label",{class:"f"},"Дата регистрации",el("input",{id:"pf_regDate",type:"date",value:p.regDate||""})),
+    el("label",{class:"f full"},"Заметки",el("textarea",{id:"pf_notes",placeholder:"Цели, сложности, о чём договорились"},p.notes||"")));
+  const body=[el("div",{id:"pChecks",style:"display:grid;gap:22px"}),el("div",{class:"sec"},el("h3",{},"Данные партнёра"),fields)];
+  const save=el("button",{class:"btn",onclick:async()=>{
+    const d={name:$("#pf_name").value.trim(),phone:$("#pf_phone").value.trim(),atomyId:$("#pf_atomyId").value.trim(),city:$("#pf_city").value.trim(),regDate:$("#pf_regDate").value,notes:$("#pf_notes").value.trim(),updatedAt:new Date().toISOString()};
+    if(!d.name){$("#pf_name").focus();toast("Впишите имя");return}
+    save.disabled=true;
+    try{if(id)await base().collection("partners").doc(id).update(d);else{d.checks=sheetState.draft||{};d.createdAt=d.updatedAt;await base().collection("partners").add(d)}toast("Сохранено");closeSheet()}
+    catch{save.disabled=false;toast("Не сохранилось, попробуйте ещё раз")}}},id?"Сохранить":"Добавить партнёра");
+  const del=id?el("button",{class:"btn danger",onclick:()=>confirmDelete(del,async()=>{try{await base().collection("partners").doc(id).delete();toast("Удалено");closeSheet()}catch{toast("Не удалось удалить")}})},"Удалить"):null;
+  if(!id)sheetState.draft={};
+  sheet(id?p.name||"Партнёр":"Новый партнёр",body,[del,el("span",{class:"sp"}),el("button",{class:"btn ghost",onclick:closeSheet},"Отмена"),save]);
+  drawPartnerChecks();
+  if(!id)setTimeout(()=>$("#pf_name").focus(),50);
+}
+function drawPartnerChecks(){
+  const box=$("#pChecks");if(!box||!sheetState)return;
+  const p=sheetState.id?S.partners.find(x=>x.id===sheetState.id):{checks:sheetState.draft};if(!p)return closeSheet();
+  const n=done(p);
+  box.replaceChildren(
+    el("div",{class:"bigmeter"},el("div",{class:"top2"},el("span",{style:"font-weight:700"},"Путь новичка"),el("b",{},n+" / "+TOTAL)),el("div",{class:"meter"},el("i",{style:`width:${n/TOTAL*100}%`})),el("span",{class:"note"},nextStep(p))),
+    ...STAGES.map(s=>el("div",{class:"sec"},el("h3",{},s.t,el("span",{},s.items.filter(([k])=>p.checks&&p.checks[k]).length+" из "+s.items.length)),
+      el("div",{class:"checks"},s.items.map(([k,l])=>{const on=!!(p.checks&&p.checks[k]);const t=el("span",{class:"tick","aria-checked":on});if(on)t.innerHTML=TICK;
+        return el("button",{class:"chk",role:"checkbox","aria-checked":on,onclick:()=>{if(sheetState.id)toggle(p,k);else{sheetState.draft[k]=!sheetState.draft[k];drawPartnerChecks()}}},t,el("span",{class:"lbl"},l))})))));
+}
+
+function openClient(id){
+  const c=id?S.clients.find(x=>x.id===id):{status:"Новый"};if(!c)return;
+  sheetState={kind:"c",id};
+  const body=[el("div",{class:"fields"},
+    el("label",{class:"f full"},"Имя",el("input",{id:"cf_name",value:c.name||"",placeholder:"Имя клиента"})),
+    el("label",{class:"f"},"Телефон",el("input",{id:"cf_phone",value:c.phone||"",inputmode:"tel",placeholder:"+7…"})),
+    el("label",{class:"f"},"Статус",el("select",{id:"cf_status"},CLIENT_STATUS.map(s=>el("option",{value:s,selected:c.status===s},s)))),
+    el("label",{class:"f full"},"Что покупает / интересует",el("input",{id:"cf_products",value:c.products||"",placeholder:"ХемоХим, зубная паста, крем…"})),
+    el("label",{class:"f"},"Последний заказ",el("input",{id:"cf_lastOrder",type:"date",value:c.lastOrder||""})),
+    el("label",{class:"f"},"Когда связаться",el("input",{id:"cf_nextContact",type:"date",value:c.nextContact||""})),
+    el("label",{class:"f"},"Откуда пришёл",el("input",{id:"cf_source",value:c.source||"",placeholder:"Инстаграм, знакомые…"})),
+    el("label",{class:"f"},"Город",el("input",{id:"cf_city",value:c.city||""})),
+    el("label",{class:"f full"},"Заметки",el("textarea",{id:"cf_notes",placeholder:"Пожелания, о чём говорили"},c.notes||"")))];
+  const save=el("button",{class:"btn",onclick:async()=>{
+    const d={};["name","phone","status","products","lastOrder","nextContact","source","city","notes"].forEach(k=>d[k]=$("#cf_"+k).value.trim());d.updatedAt=new Date().toISOString();
+    if(!d.name){$("#cf_name").focus();toast("Впишите имя");return}
+    save.disabled=true;
+    try{if(id)await base().collection("clients").doc(id).update(d);else{d.createdAt=d.updatedAt;await base().collection("clients").add(d)}toast("Сохранено");closeSheet()}
+    catch{save.disabled=false;toast("Не сохранилось, попробуйте ещё раз")}}},id?"Сохранить":"Добавить клиента");
+  const del=id?el("button",{class:"btn danger",onclick:()=>confirmDelete(del,async()=>{try{await base().collection("clients").doc(id).delete();toast("Удалено");closeSheet()}catch{toast("Не удалось удалить")}})},"Удалить"):null;
+  sheet(id?c.name||"Клиент":"Новый клиент",body,[del,el("span",{class:"sp"}),el("button",{class:"btn ghost",onclick:closeSheet},"Отмена"),save]);
+  if(!id)setTimeout(()=>$("#cf_name").focus(),50);
+}
+</script>
+</body></html>
