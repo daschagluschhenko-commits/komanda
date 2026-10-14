@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Моя команда Atomy</title>
+<meta name="theme-color" content="#1f6f5c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Моя команда">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Моя команда</title>
 <style>
 /* Layout: sticky top bar with tabs → toolbar → card grid; detail opens in a side sheet (bottom sheet on phones) */
 :root{
@@ -33,7 +41,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;l
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
-.logo{width:36px;height:36px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink);font-family:var(--display);font-size:15px;flex:none}
+.logo{width:40px;height:40px;flex:none;filter:drop-shadow(0 2px 4px rgb(21 82 68/.25))}.logo svg{width:100%;height:100%;display:block}
 .brand h1{font-size:16px}
 .brand small{display:block;color:var(--muted);font-size:12px;font-family:var(--body);font-weight:500}
 .tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px}
@@ -141,7 +149,17 @@ textarea{resize:vertical;min-height:80px}
 </head><body>
 <header class="top">
   <div class="wrap">
-    <div class="brand"><div class="logo">A</div><div style="min-width:0"><h1>Моя команда</h1><small id="whoami">Загружаю…</small></div></div>
+    <div class="brand"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A8670"/><stop offset="1" stop-color="#155244"/></linearGradient></defs>
+<rect width="512" height="512" rx="116" fill="url(#lg)"/>
+<g fill="#ffffff">
+<circle cx="146" cy="236" r="36" opacity=".72"/><path d="M84 356a62 62 0 0 1 124 0z" opacity=".72"/>
+<circle cx="366" cy="236" r="36" opacity=".72"/><path d="M304 356a62 62 0 0 1 124 0z" opacity=".72"/>
+<circle cx="256" cy="186" r="50"/><path d="M168 356a88 88 0 0 1 176 0z"/>
+</g>
+<path d="M118 398Q256 462 394 398" fill="none" stroke="#F3A574" stroke-width="24" stroke-linecap="round"/>
+<path d="M256 66Q262 90 286 96Q262 102 256 126Q250 102 226 96Q250 90 256 66Z" fill="#F3A574"/>
+</svg></div><div style="min-width:0"><h1>Моя команда</h1><small id="whoami">Загружаю…</small></div></div>
     <nav class="tabs" role="tablist" id="tabs" hidden>
       <button class="tab" role="tab" data-tab="partners" aria-selected="true">Партнёры<span class="n" id="nP"></span></button>
       <button class="tab" role="tab" data-tab="clients" aria-selected="false">Клиенты<span class="n" id="nC"></span></button>
@@ -372,7 +390,8 @@ function renderProfile(){
     el("div",{class:"fields"},el("label",{class:"f"},"Телефон",el("input",{id:"pPhone",value:S.me.phone||""})),el("label",{class:"f"},"ID в Атоми",el("input",{id:"pAid",value:S.me.atomyId||""}))),
     el("label",{class:"f"},"Город",el("input",{id:"pCity",value:S.me.city||""})),
     el("label",{class:"f"},"Кто вас пригласил",el("input",{id:"pSponsor",value:S.me.sponsor||""})),
-    el("button",{class:"btn",type:"submit"},"Сохранить"));
+    el("button",{class:"btn",type:"submit"},"Сохранить"),
+    installBlock());
   f.addEventListener("submit",async e=>{e.preventDefault();const u={name:$("#pName").value.trim(),phone:$("#pPhone").value.trim(),atomyId:$("#pAid").value.trim(),city:$("#pCity").value.trim(),sponsor:$("#pSponsor").value.trim()};if(!u.name)return;
     try{await S.db.doc("members/"+S.uid).update(u);Object.assign(S.me,u);$("#whoami").textContent=S.me.name+(S.isOwner?" · руководитель":"");toast("Сохранено")}catch{toast("Не сохранилось")}});
   return f;
@@ -397,39 +416,163 @@ async function renderTeam(){
 }
 
 
+
+/* ---------- установка на телефон ---------- */
+let installEvt=null;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;if(S.tab==="profile"&&S.me)render()});
+window.addEventListener("appinstalled",()=>{installEvt=null;toast("Готово! Значок на главном экране")});
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+const isStandalone=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function installBlock(){
+  const box=el("div",{class:"bigmeter",style:"gap:10px"},el("span",{style:"font-weight:800"},"Значок на главный экран"));
+  if(isStandalone()){box.append(el("span",{class:"note"},"Сайт уже установлен на этом устройстве."));return box}
+  if(installEvt){box.append(el("span",{class:"note"},"Сайт будет открываться как приложение, одним нажатием."),
+    el("button",{type:"button",class:"btn",onclick:async()=>{installEvt.prompt();await installEvt.userChoice.catch(()=>{});installEvt=null;render()}},"Добавить на главный экран"));return box}
+  if(isIOS())box.append(el("span",{class:"note"},"На iPhone: откройте сайт в Safari → нажмите «Поделиться» (квадрат со стрелкой вверх) → «На экран Домой» → «Добавить»."));
+  else box.append(el("span",{class:"note"},"На Android: откройте сайт в Chrome → меню ⋮ справа вверху → «Добавить на главный экран» или «Установить приложение»."));
+  return box;
+}
 /* ---------- excel ---------- */
-function loadXLSX(){return window.XLSX?Promise.resolve():new Promise((ok,bad)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=ok;sc.onerror=bad;document.head.appendChild(sc)})}
-const ru=d=>d?d.split("-").reverse().join("."):"";
-function partnerRow(p,owner){const r={};if(owner!==undefined)r["Чей партнёр"]=owner;
-  Object.assign(r,{"ФИО":p.name||"","Телефон":p.phone||"","ID в Атоми":p.atomyId||"","Город":p.city||"","Дата регистрации":ru(p.regDate)});
-  ALL.forEach(([k,l])=>r[l]=p.checks&&p.checks[k]?"✓":"");
-  r["Шагов пройдено"]=done(p)+" из "+TOTAL;r["Прогресс, %"]=Math.round(done(p)/TOTAL*100);r["Заметки"]=p.notes||"";return r}
-function clientRow(c,owner){const r={};if(owner!==undefined)r["Чей клиент"]=owner;
-  return Object.assign(r,{"Имя":c.name||"","Телефон":c.phone||"","Статус":c.status||"","Что покупает":c.products||"","Последний заказ":ru(c.lastOrder),"Когда связаться":ru(c.nextContact),"Откуда пришёл":c.source||"","Город":c.city||"","Заметки":c.notes||""})}
-function sheet_(rows,emptyHead){const ws=rows.length?XLSX.utils.json_to_sheet(rows):XLSX.utils.aoa_to_sheet([emptyHead]);
-  const keys=rows.length?Object.keys(rows[0]):emptyHead;ws["!cols"]=keys.map(k=>({wch:Math.min(40,Math.max(k.length>20?6:k.length+2,...rows.map(r=>String(r[k]??"").length+2)))}));return ws}
+const XC={ink:"FF1C2A2A",green:"FF1F6F5C",greenSoft:"FFD6EBE3",greenMid:"FF8CC7B3",warm:"FFE8894F",warmSoft:"FFFBE6D8",grey:"FFF1F4F0",line:"FFD7DED5",white:"FFFFFFFF",muted:"FF5D6B69"};
+const STAGE_FILL=["FFE3F1EC","FFE6EEF7","FFFBEFE3","FFEFE8F5","FFFFF4D6"];
+const STATUS_FILL={"Новый":"FFFBE6D8","Думает":"FFFFF4D6","Купил":"FFD6EBE3","Постоянный":"FFB9E0D1","Не актуален":"FFEDEDED"};
+const toDate=s=>{if(!s)return null;const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d))};
+function xlTitle(ws,text,sub,cols){
+  ws.pageSetup={orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
+  ws.mergeCells(1,1,1,cols);const t=ws.getCell(1,1);t.value=text;
+  t.font={name:"Arial",size:15,bold:true,color:{argb:XC.white}};t.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.green}};t.alignment={vertical:"middle",indent:1};
+  ws.getRow(1).height=30;
+  ws.mergeCells(2,1,2,cols);const s2=ws.getCell(2,1);s2.value=sub;
+  s2.font={name:"Arial",size:10,italic:true,color:{argb:XC.muted}};s2.alignment={vertical:"middle",indent:1};ws.getRow(2).height=18;
+}
+function xlHeader(row,{rotate=[]}={}){
+  row.eachCell((c,i)=>{c.font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};
+    c.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.greenSoft}};
+    c.alignment=rotate.includes(i)?{textRotation:90,horizontal:"center",vertical:"bottom",wrapText:true}:{vertical:"middle",horizontal:"left",wrapText:true,indent:0};
+    c.border={bottom:{style:"medium",color:{argb:XC.green}},right:{style:"thin",color:{argb:XC.line}}}});
+}
+function xlBody(ws,fromRow,cols){
+  for(let r=fromRow;r<=ws.rowCount;r++){const row=ws.getRow(r);row.height=Math.max(row.height||0,20);
+    for(let c=1;c<=cols;c++){const cell=row.getCell(c);
+      cell.font=Object.assign({name:"Arial",size:10,color:{argb:XC.ink}},cell.font||{});
+      cell.border={bottom:{style:"thin",color:{argb:XC.line}},right:{style:"thin",color:{argb:XC.line}}};
+      if(!cell.alignment)cell.alignment={vertical:"middle",wrapText:true};
+      if(!cell.fill&&(r-fromRow)%2===1)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.grey}}}}
+}
+function xlEmpty(ws,row,cols,text){ws.mergeCells(row,1,row,cols);const c=ws.getCell(row,1);c.value=text;c.font={name:"Arial",size:10,italic:true,color:{argb:XC.muted}};c.alignment={horizontal:"center",vertical:"middle"};ws.getRow(row).height=28}
+
+function buildWorkbook(ExcelJS,D){
+  const wb=new ExcelJS.Workbook();wb.creator="Моя команда";wb.created=new Date();
+  const own=D.isOwner,dateRu=D.date.split("-").reverse().join(".");
+  const progressFmt=(ws,col,r1,r2)=>{if(r2<r1)return;ws.addConditionalFormatting({ref:`${col}${r1}:${col}${r2}`,rules:[{type:"dataBar",minLength:0,maxLength:100,cfvo:[{type:"num",value:0},{type:"num",value:100}],color:{argb:"FF58C2A2"},gradient:false}]})};
+
+  /* Команда */
+  if(own){
+    const ws=wb.addWorksheet("Команда",{properties:{tabColor:{argb:XC.green}},views:[{state:"frozen",ySplit:3,showGridLines:false}]});
+    const H=["Имя","Email","Телефон","ID в Атоми","Город","Кто пригласил","Партнёров","Клиентов","Прогресс партнёров","На сайте с"];
+    const W=[24,28,18,13,18,18,12,11,16,13];
+    xlTitle(ws,"Вся команда","Выгрузка от "+dateRu+" · участников: "+D.team.length,H.length);
+    const hr=ws.getRow(3);hr.values=H;hr.height=32;xlHeader(hr);W.forEach((w,i)=>ws.getColumn(i+1).width=w);
+    D.team.forEach(m=>{const r=ws.addRow([m.name,m.email,m.phone,m.atomyId,m.city,m.sponsor,m.partners,m.clients,m.progress/100,toDate(m.since)]);
+      r.getCell(1).font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};
+      [7,8].forEach(i=>r.getCell(i).alignment={horizontal:"center",vertical:"middle"});
+      r.getCell(9).numFmt="0%";r.getCell(9).alignment={horizontal:"center",vertical:"middle"};r.getCell(10).numFmt="dd.mm.yyyy";r.getCell(10).alignment={horizontal:"center",vertical:"middle"}});
+    if(!D.team.length)xlEmpty(ws,4,H.length,"Пока никто не зарегистрировался");
+    xlBody(ws,4,H.length);
+    if(D.team.length){ws.autoFilter={from:{row:3,column:1},to:{row:3+D.team.length,column:H.length}};
+      const tr=ws.addRow(["Итого","","","","","",{formula:`SUM(G4:G${3+D.team.length})`},{formula:`SUM(H4:H${3+D.team.length})`}]);
+      tr.eachCell(c=>{c.font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};c.border={top:{style:"medium",color:{argb:XC.green}}}});
+      [7,8].forEach(i=>tr.getCell(i).alignment={horizontal:"center"})}
+  }
+
+  /* Партнёры */
+  {
+    const ws=wb.addWorksheet("Партнёры",{properties:{tabColor:{argb:"FF58C2A2"}}});
+    const lead=own?["Чей партнёр"]:[];
+    const info=[...lead,"ФИО","Телефон","ID в Атоми","Город","Дата рег."];
+    const steps=ALL.map(a=>a[1]);
+    const tail=["Шаги","Прогресс","Заметки"];
+    const H=[...info,...steps,...tail];const n=H.length,s0=info.length+1,pCol=s0+steps.length+1;
+    xlTitle(ws,"Путь новичка · партнёры","Выгрузка от "+dateRu+" · партнёров: "+D.partners.length+" · ✓ — шаг пройден",n);
+    // group row
+    const g=ws.getRow(3);g.height=20;
+    ws.mergeCells(3,1,3,info.length);Object.assign(ws.getCell(3,1),{value:"Партнёр"});
+    let c=s0;STAGES.forEach((st,i)=>{const e=c+st.items.length-1;if(e>c)ws.mergeCells(3,c,3,e);const cell=ws.getCell(3,c);cell.value=st.t;
+      for(let k=c;k<=e;k++)ws.getCell(3,k).fill={type:"pattern",pattern:"solid",fgColor:{argb:STAGE_FILL[i]}};c=e+1});
+    ws.mergeCells(3,c,3,n);ws.getCell(3,c).value="Итог";
+    for(let k=1;k<=n;k++){const cell=ws.getCell(3,k);cell.font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};cell.alignment={horizontal:"center",vertical:"middle"};
+      if(!cell.fill)cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.greenSoft}};cell.border={right:{style:"thin",color:{argb:XC.line}},bottom:{style:"thin",color:{argb:XC.line}}}}
+    const hr=ws.getRow(4);hr.values=H;hr.height=150;
+    xlHeader(hr,{rotate:steps.map((_,i)=>s0+i)});
+    for(let i=0;i<steps.length;i++){const cell=hr.getCell(s0+i);let st=0,acc=0;for(;st<STAGES.length;st++){acc+=STAGES[st].items.length;if(i<acc)break}cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:STAGE_FILL[st]}}}
+    const widths=[...(own?[20]:[]),24,18,12,15,12,...steps.map((_,i)=>i===steps.length-1?10:4.6),9,11,30];widths.forEach((w,i)=>ws.getColumn(i+1).width=w);
+    const rows=[...D.partners].sort((a,b)=>(a.owner||"").localeCompare(b.owner||"","ru")||(a.p.name||"").localeCompare(b.p.name||"","ru"));
+    rows.forEach(({owner,p})=>{const n1=done(p);
+      const r=ws.addRow([...(own?[owner]:[]),p.name||"",p.phone||"",p.atomyId||"",p.city||"",toDate(p.regDate),...ALL.map(([k])=>p.checks&&p.checks[k]?"✓":""),n1+" / "+TOTAL,n1/TOTAL,p.notes||""]);
+      r.height=22;r.getCell(info.length).numFmt="dd.mm.yyyy";r.getCell(info.length).alignment={horizontal:"center",vertical:"middle"};
+      r.getCell(own?2:1).font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};
+      ALL.forEach(([k],i)=>{const cell=r.getCell(s0+i);const on=p.checks&&p.checks[k];cell.alignment={horizontal:"center",vertical:"middle"};
+        cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:on?XC.green:XC.white}};cell.font={name:"Arial",size:11,bold:true,color:{argb:XC.white}}});
+      r.getCell(pCol-1).alignment={horizontal:"center",vertical:"middle"};
+      const pc=r.getCell(pCol);pc.numFmt="0%";pc.alignment={horizontal:"center",vertical:"middle"};pc.font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}}});
+    if(!rows.length)xlEmpty(ws,5,n,"Партнёров пока нет");
+    xlBody(ws,5,n);
+    const colL=k=>ws.getColumn(k).letter;
+    progressFmt(ws,colL(pCol),5,4+rows.length);
+    ws.views=[{state:"frozen",xSplit:own?2:1,ySplit:4,showGridLines:false}];
+    if(rows.length)ws.autoFilter={from:{row:4,column:1},to:{row:4+rows.length,column:n}};
+  }
+
+  /* Клиенты */
+  {
+    const ws=wb.addWorksheet("Клиенты",{properties:{tabColor:{argb:XC.warm}}});
+    const H=[...(own?["Чей клиент"]:[]),"Имя","Телефон","Статус","Что покупает","Последний заказ","Когда связаться","Откуда пришёл","Город","Заметки"];
+    const W=[...(own?[20]:[]),22,18,14,30,15,15,16,16,34];
+    const today=toDate(D.date);
+    const due=D.clients.filter(({c})=>c.nextContact&&toDate(c.nextContact)<=today&&c.status!=="Не актуален").length;
+    xlTitle(ws,"Клиенты","Выгрузка от "+dateRu+" · клиентов: "+D.clients.length+(due?" · пора связаться: "+due+" (выделены оранжевым)":""),H.length);
+    const hr=ws.getRow(3);hr.values=H;hr.height=32;xlHeader(hr);W.forEach((w,i)=>ws.getColumn(i+1).width=w);
+    const o=own?1:0;
+    const rows=[...D.clients].sort((a,b)=>(a.owner||"").localeCompare(b.owner||"","ru")||((a.c.nextContact||"9")<(b.c.nextContact||"9")?-1:1));
+    rows.forEach(({owner,c})=>{const r=ws.addRow([...(own?[owner]:[]),c.name||"",c.phone||"",c.status||"",c.products||"",toDate(c.lastOrder),toDate(c.nextContact),c.source||"",c.city||"",c.notes||""]);
+      r.getCell(1+o).font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};
+      const st=r.getCell(3+o);st.alignment={horizontal:"center",vertical:"middle"};if(STATUS_FILL[c.status])st.fill={type:"pattern",pattern:"solid",fgColor:{argb:STATUS_FILL[c.status]}};
+      [5,6].forEach(i=>{const cell=r.getCell(i+o);cell.numFmt="dd.mm.yyyy";cell.alignment={horizontal:"center",vertical:"middle"}});
+      if(c.nextContact&&toDate(c.nextContact)<=today&&c.status!=="Не актуален"){const cell=r.getCell(6+o);cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.warm}};cell.font={name:"Arial",size:10,bold:true,color:{argb:XC.white}}}});
+    if(!rows.length)xlEmpty(ws,4,H.length,"Клиентов пока нет");
+    xlBody(ws,4,H.length);
+    ws.views=[{state:"frozen",xSplit:1+o,ySplit:3,showGridLines:false}];
+    if(rows.length)ws.autoFilter={from:{row:3,column:1},to:{row:3+rows.length,column:H.length}};
+  }
+  return wb;
+}
+
+function loadExcelJS(){return window.ExcelJS?Promise.resolve():new Promise((ok,bad)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";sc.onload=ok;sc.onerror=bad;document.head.appendChild(sc)})}
 async function exportExcel(){
   const b=$("#excel");b.disabled=true;b.textContent="Готовлю…";
   try{
-    await loadXLSX();
-    const wb=XLSX.utils.book_new();let P=[],C=[];
+    await loadExcelJS();
+    const D={isOwner:S.isOwner,date:today(),team:[],partners:[],clients:[]};
     if(S.isOwner){
       const ms=(await S.db.collection("members").get()).docs.map(d=>({id:d.id,...d.data()}));
-      const team=[];
       for(const m of ms){const r=S.db.collection("members").doc(m.id);
         const [ps,cs]=await Promise.all([r.collection("partners").get(),r.collection("clients").get()]);
         const pl=ps.docs.map(d=>d.data()),cl=cs.docs.map(d=>d.data());
-        pl.forEach(p=>P.push(partnerRow(p,m.name||"")));cl.forEach(c=>C.push(clientRow(c,m.name||"")));
-        team.push({"Имя":m.name||"","Email":m.email||"","Телефон":m.phone||"","ID в Атоми":m.atomyId||"","Город":m.city||"","Кто пригласил":m.sponsor||"","Партнёров":pl.length,"Клиентов":cl.length,"Средний прогресс партнёров, %":pl.length?Math.round(pl.reduce((s,p)=>s+done(p),0)/pl.length/TOTAL*100):0,"Дата регистрации на сайте":m.createdAt?ru(m.createdAt.slice(0,10)):""})}
-      XLSX.utils.book_append_sheet(wb,sheet_(team,["Имя"]),"Команда");
-    }else{P=S.partners.map(p=>partnerRow(p));C=S.clients.map(c=>clientRow(c))}
-    XLSX.utils.book_append_sheet(wb,sheet_(P,["ФИО",...ALL.map(a=>a[1])]),"Партнёры");
-    XLSX.utils.book_append_sheet(wb,sheet_(C,["Имя","Телефон","Статус"]),"Клиенты");
-    XLSX.writeFile(wb,(S.isOwner?"komanda_vsya_":"moya_baza_")+today()+".xlsx");
+        pl.forEach(p=>D.partners.push({owner:m.name||"",p}));cl.forEach(c=>D.clients.push({owner:m.name||"",c}));
+        D.team.push({name:m.name||"",email:m.email||"",phone:m.phone||"",atomyId:m.atomyId||"",city:m.city||"",sponsor:m.sponsor||"",partners:pl.length,clients:cl.length,
+          progress:pl.length?Math.round(pl.reduce((s,p)=>s+done(p),0)/pl.length/TOTAL*100):0,since:m.createdAt?m.createdAt.slice(0,10):""})}
+      D.team.sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+    }else{D.partners=S.partners.map(p=>({p}));D.clients=S.clients.map(c=>({c}))}
+    const buf=await buildWorkbook(window.ExcelJS,D).xlsx.writeBuffer();
+    const url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+    const a=document.createElement("a");a.href=url;a.download=(S.isOwner?"komanda_vsya_":"moya_baza_")+D.date+".xlsx";document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
     toast("Файл скачан");
   }catch(e){console.error(e);toast("Не получилось скачать. Проверьте интернет")}
   finally{b.disabled=false;b.textContent="Скачать Excel"}
 }
+
 /* ---------- sheets ---------- */
 let sheetState=null;
 function closeSheet(){sheetState=null;$("#sheetRoot").replaceChildren()}
