@@ -110,8 +110,8 @@ td.pct{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fields .full{grid-column:1/-1}
 @media (max-width:480px){.fields{grid-template-columns:1fr}}
-label.f{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);min-width:0}
-label.f input,label.f select,label.f textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;font-weight:500;width:100%;min-width:0}
+.f{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);min-width:0}
+.f input,.f select,.f textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;font-weight:500;width:100%;min-width:0}
 textarea{resize:vertical;min-height:80px}
 .sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;font-family:var(--body);font-weight:800}
 .sec h3 span{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0}
@@ -148,6 +148,7 @@ textarea{resize:vertical;min-height:80px}
       <button class="tab" role="tab" data-tab="team" aria-selected="false" id="teamTab" hidden>Вся команда</button>
       <button class="tab" role="tab" data-tab="profile" aria-selected="false">Профиль</button>
     </nav>
+    <button class="btn ghost" id="excel" hidden style="padding:7px 14px;font-size:13px">Скачать Excel</button>
     <button class="btn ghost" id="logout" hidden style="padding:7px 14px;font-size:13px">Выйти</button>
   </div>
 </header>
@@ -191,9 +192,20 @@ const TICK='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-wi
 const S={db:null,user:null,uid:null,isOwner:false,me:null,viewUid:null,viewName:"",tab:"partners",
   partners:[],clients:[],members:[],unsub:[],q:"",pView:"cards",cFilter:"all",readOnly:false};
 const $=s=>document.querySelector(s);
-const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v===true)e.setAttribute(k,"");else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e};
+const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[k,v]of Object.entries(attrs)){if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k.startsWith("aria-"))e.setAttribute(k,String(v));else if(v===true)e.setAttribute(k,"");else if(v!==false&&v!=null)e.setAttribute(k,v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e};
 const initials=n=>(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
-const today=()=>new Date().toISOString().slice(0,10);
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=()=>ymd(new Date());
+const QUICK=[["Через неделю",d=>d.setDate(d.getDate()+7)],["Через месяц",d=>d.setMonth(d.getMonth()+1)],["Через 3 месяца",d=>d.setMonth(d.getMonth()+3)]];
+const quickDate=fn=>{const d=new Date();fn(d);return ymd(d)};
+function nextContactField(val){
+  const inp=el("input",{id:"cf_nextContact",type:"date",value:val});
+  const btns=QUICK.map(([l,fn])=>el("button",{type:"button",class:"chip","aria-pressed":val===quickDate(fn),onclick:()=>{inp.value=quickDate(fn);sync()}},l));
+  const clear=el("button",{type:"button",class:"chip",onclick:()=>{inp.value="";sync()}},"Не напоминать");
+  function sync(){QUICK.forEach(([,fn],i)=>btns[i].setAttribute("aria-pressed",String(inp.value===quickDate(fn))))}
+  inp.addEventListener("change",sync);
+  return el("div",{class:"f full"},el("span",{},"Когда связаться"),el("div",{class:"chips",style:"margin:0"},btns,clear),inp,el("span",{class:"note",style:"font-weight:500"},"Выберите срок или поставьте свою дату"));
+}
 const fmtDate=d=>d?new Date(d+"T00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"short"}):"";
 const done=p=>ALL.filter(([k])=>p.checks&&p.checks[k]).length;
 function stageOf(p){const n=done(p);if(n===0)return["Новичок","s0"];if(n<8)return["Стартует","s1"];if(n<16)return["В работе","s2"];if(n<TOTAL)return["Почти у цели","s3"];return["Всё пройдено","s4"]}
@@ -247,7 +259,7 @@ function renderLogin(mode){
 function renderRegister(){
   $("#whoami").textContent="Регистрация";
   const f=el("form",{class:"reg"},
-    el("h2",{},"Добро пожаловать в команду"),
+    el("h2",{},"Добро пожаловать, партнёр"),
     el("p",{},"Заполните профиль один раз. Дальше вы будете вести здесь своих партнёров и клиентов, а данные сохранятся."),
     el("label",{class:"f"},"Имя и фамилия",el("input",{id:"rName",required:true,placeholder:"Анна Иванова",autocomplete:"name"})),
     el("div",{class:"fields"},
@@ -267,6 +279,7 @@ function renderRegister(){
 
 function start(){
   $("#tabs").hidden=false;$("#teamTab").hidden=!S.isOwner;
+  $("#excel").hidden=false;$("#excel").onclick=exportExcel;$("#excel").title=S.isOwner?"Все данные всей команды":"Ваши партнёры и клиенты";
   S.viewUid=S.uid;S.viewName=S.me.name;
   $("#whoami").textContent=S.me.name+(S.isOwner?" · руководитель":"");
   document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -383,6 +396,40 @@ async function renderTeam(){
   }
 }
 
+
+/* ---------- excel ---------- */
+function loadXLSX(){return window.XLSX?Promise.resolve():new Promise((ok,bad)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=ok;sc.onerror=bad;document.head.appendChild(sc)})}
+const ru=d=>d?d.split("-").reverse().join("."):"";
+function partnerRow(p,owner){const r={};if(owner!==undefined)r["Чей партнёр"]=owner;
+  Object.assign(r,{"ФИО":p.name||"","Телефон":p.phone||"","ID в Атоми":p.atomyId||"","Город":p.city||"","Дата регистрации":ru(p.regDate)});
+  ALL.forEach(([k,l])=>r[l]=p.checks&&p.checks[k]?"✓":"");
+  r["Шагов пройдено"]=done(p)+" из "+TOTAL;r["Прогресс, %"]=Math.round(done(p)/TOTAL*100);r["Заметки"]=p.notes||"";return r}
+function clientRow(c,owner){const r={};if(owner!==undefined)r["Чей клиент"]=owner;
+  return Object.assign(r,{"Имя":c.name||"","Телефон":c.phone||"","Статус":c.status||"","Что покупает":c.products||"","Последний заказ":ru(c.lastOrder),"Когда связаться":ru(c.nextContact),"Откуда пришёл":c.source||"","Город":c.city||"","Заметки":c.notes||""})}
+function sheet_(rows,emptyHead){const ws=rows.length?XLSX.utils.json_to_sheet(rows):XLSX.utils.aoa_to_sheet([emptyHead]);
+  const keys=rows.length?Object.keys(rows[0]):emptyHead;ws["!cols"]=keys.map(k=>({wch:Math.min(40,Math.max(k.length>20?6:k.length+2,...rows.map(r=>String(r[k]??"").length+2)))}));return ws}
+async function exportExcel(){
+  const b=$("#excel");b.disabled=true;b.textContent="Готовлю…";
+  try{
+    await loadXLSX();
+    const wb=XLSX.utils.book_new();let P=[],C=[];
+    if(S.isOwner){
+      const ms=(await S.db.collection("members").get()).docs.map(d=>({id:d.id,...d.data()}));
+      const team=[];
+      for(const m of ms){const r=S.db.collection("members").doc(m.id);
+        const [ps,cs]=await Promise.all([r.collection("partners").get(),r.collection("clients").get()]);
+        const pl=ps.docs.map(d=>d.data()),cl=cs.docs.map(d=>d.data());
+        pl.forEach(p=>P.push(partnerRow(p,m.name||"")));cl.forEach(c=>C.push(clientRow(c,m.name||"")));
+        team.push({"Имя":m.name||"","Email":m.email||"","Телефон":m.phone||"","ID в Атоми":m.atomyId||"","Город":m.city||"","Кто пригласил":m.sponsor||"","Партнёров":pl.length,"Клиентов":cl.length,"Средний прогресс партнёров, %":pl.length?Math.round(pl.reduce((s,p)=>s+done(p),0)/pl.length/TOTAL*100):0,"Дата регистрации на сайте":m.createdAt?ru(m.createdAt.slice(0,10)):""})}
+      XLSX.utils.book_append_sheet(wb,sheet_(team,["Имя"]),"Команда");
+    }else{P=S.partners.map(p=>partnerRow(p));C=S.clients.map(c=>clientRow(c))}
+    XLSX.utils.book_append_sheet(wb,sheet_(P,["ФИО",...ALL.map(a=>a[1])]),"Партнёры");
+    XLSX.utils.book_append_sheet(wb,sheet_(C,["Имя","Телефон","Статус"]),"Клиенты");
+    XLSX.writeFile(wb,(S.isOwner?"komanda_vsya_":"moya_baza_")+today()+".xlsx");
+    toast("Файл скачан");
+  }catch(e){console.error(e);toast("Не получилось скачать. Проверьте интернет")}
+  finally{b.disabled=false;b.textContent="Скачать Excel"}
+}
 /* ---------- sheets ---------- */
 let sheetState=null;
 function closeSheet(){sheetState=null;$("#sheetRoot").replaceChildren()}
@@ -438,9 +485,9 @@ function openClient(id){
     el("label",{class:"f"},"Статус",el("select",{id:"cf_status"},CLIENT_STATUS.map(s=>el("option",{value:s,selected:c.status===s},s)))),
     el("label",{class:"f full"},"Что покупает / интересует",el("input",{id:"cf_products",value:c.products||"",placeholder:"ХемоХим, зубная паста, крем…"})),
     el("label",{class:"f"},"Последний заказ",el("input",{id:"cf_lastOrder",type:"date",value:c.lastOrder||""})),
-    el("label",{class:"f"},"Когда связаться",el("input",{id:"cf_nextContact",type:"date",value:c.nextContact||""})),
-    el("label",{class:"f"},"Откуда пришёл",el("input",{id:"cf_source",value:c.source||"",placeholder:"Инстаграм, знакомые…"})),
     el("label",{class:"f"},"Город",el("input",{id:"cf_city",value:c.city||""})),
+    nextContactField(c.nextContact||""),
+    el("label",{class:"f full"},"Откуда пришёл",el("input",{id:"cf_source",value:c.source||"",placeholder:"Инстаграм, знакомые…"})),
     el("label",{class:"f full"},"Заметки",el("textarea",{id:"cf_notes",placeholder:"Пожелания, о чём говорили"},c.notes||"")))];
   const save=el("button",{class:"btn",onclick:async()=>{
     const d={};["name","phone","status","products","lastOrder","nextContact","source","city","notes"].forEach(k=>d[k]=$("#cf_"+k).value.trim());d.updatedAt=new Date().toISOString();
