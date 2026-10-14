@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1f6f5c">
+<meta name="theme-color" content="#1d4e9e">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -12,21 +12,21 @@
 <style>
 /* Layout: sticky top bar with tabs → toolbar → card grid; detail opens in a side sheet (bottom sheet on phones) */
 :root{
-  --bg:#f3f5f2; --surface:#ffffff; --surface-2:#eaefe9; --line:#d7ded5;
-  --ink:#1c2a2a; --muted:#5d6b69; --accent:#1f6f5c; --accent-ink:#ffffff; --accent-soft:#d6ebe3;
-  --warm:#e8894f; --warm-soft:#fbe6d8; --danger:#b8402f;
+  --bg:#f2f5fa; --surface:#ffffff; --surface-2:#e8eef7; --line:#d5deeb;
+  --ink:#17233b; --muted:#5a6780; --accent:#1d4e9e; --accent-ink:#ffffff; --accent-soft:#dbe7f8;
+  --warm:#d9902a; --warm-soft:#fbefd9; --danger:#b8402f;
   --display:"Unbounded","Manrope",system-ui,sans-serif;
   --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#111817; --surface:#18221f; --surface-2:#1f2b28; --line:#2c3b37;
-  --ink:#e6eeea; --muted:#97a8a3; --accent:#58c2a2; --accent-ink:#0d1a16; --accent-soft:#1d3a32;
-  --warm:#f0a070; --warm-soft:#3a2a1f; --danger:#ef7a66; color-scheme:dark}}
+  --bg:#0f1522; --surface:#161e2e; --surface-2:#1d2739; --line:#2a3650;
+  --ink:#e6ecf6; --muted:#97a3ba; --accent:#6aa6f0; --accent-ink:#0b1424; --accent-soft:#1c2f4d;
+  --warm:#f0b660; --warm-soft:#3a2e1a; --danger:#ef7a66; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#111817; --surface:#18221f; --surface-2:#1f2b28; --line:#2c3b37;
-  --ink:#e6eeea; --muted:#97a8a3; --accent:#58c2a2; --accent-ink:#0d1a16; --accent-soft:#1d3a32;
-  --warm:#f0a070; --warm-soft:#3a2a1f; --danger:#ef7a66; color-scheme:dark}
+  --bg:#0f1522; --surface:#161e2e; --surface-2:#1d2739; --line:#2a3650;
+  --ink:#e6ecf6; --muted:#97a3ba; --accent:#6aa6f0; --accent-ink:#0b1424; --accent-soft:#1c2f4d;
+  --warm:#f0b660; --warm-soft:#3a2e1a; --danger:#ef7a66; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0}
@@ -41,7 +41,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;margin:0;l
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
-.logo{width:40px;height:40px;flex:none;filter:drop-shadow(0 2px 4px rgb(21 82 68/.25))}.logo svg{width:100%;height:100%;display:block}
+.logo{width:40px;height:40px;flex:none;filter:drop-shadow(0 2px 4px rgb(20 50 110/.25))}.logo svg{width:100%;height:100%;display:block}
 .brand h1{font-size:16px}
 .brand small{display:block;color:var(--muted);font-size:12px;font-family:var(--body);font-weight:500}
 .tabs{display:flex;gap:4px;background:var(--surface-2);padding:4px;border-radius:999px}
@@ -106,7 +106,7 @@ td.pct{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tick svg{width:14px;height:14px}
 
 /* sheet */
-.scrim{position:fixed;inset:0;background:rgb(10 20 18/.45);z-index:20}
+.scrim{position:fixed;inset:0;background:rgb(10 16 30/.45);z-index:20}
 .sheet{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:21;display:flex;flex-direction:column;box-shadow:-8px 0 32px rgb(0 0 0/.18)}
 .sheet header{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 20px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
 .sheet header h2{font-size:17px;margin-right:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -121,6 +121,7 @@ td.pct{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .f{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--muted);min-width:0}
 .f input,.f select,.f textarea{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:15px;font-weight:500;width:100%;min-width:0}
 textarea{resize:vertical;min-height:80px}
+.pw{position:relative}.pw input{padding-right:84px}.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:var(--surface-2);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:700;color:var(--muted)}
 .sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;gap:8px;font-family:var(--body);font-weight:800}
 .sec h3 span{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:0}
 .checks{display:grid;gap:6px}
@@ -150,15 +151,15 @@ textarea{resize:vertical;min-height:80px}
 <header class="top">
   <div class="wrap">
     <div class="brand"><div class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A8670"/><stop offset="1" stop-color="#155244"/></linearGradient></defs>
+<defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F6FD0"/><stop offset="1" stop-color="#173B7A"/></linearGradient></defs>
 <rect width="512" height="512" rx="116" fill="url(#lg)"/>
 <g fill="#ffffff">
 <circle cx="146" cy="236" r="36" opacity=".72"/><path d="M84 356a62 62 0 0 1 124 0z" opacity=".72"/>
 <circle cx="366" cy="236" r="36" opacity=".72"/><path d="M304 356a62 62 0 0 1 124 0z" opacity=".72"/>
 <circle cx="256" cy="186" r="50"/><path d="M168 356a88 88 0 0 1 176 0z"/>
 </g>
-<path d="M118 398Q256 462 394 398" fill="none" stroke="#F3A574" stroke-width="24" stroke-linecap="round"/>
-<path d="M256 66Q262 90 286 96Q262 102 256 126Q250 102 226 96Q250 90 256 66Z" fill="#F3A574"/>
+<path d="M118 398Q256 462 394 398" fill="none" stroke="#F2C14E" stroke-width="24" stroke-linecap="round"/>
+<path d="M256 66Q262 90 286 96Q262 102 256 126Q250 102 226 96Q250 90 256 66Z" fill="#F2C14E"/>
 </svg></div><div style="min-width:0"><h1>Моя команда</h1><small id="whoami">Загружаю…</small></div></div>
     <nav class="tabs" role="tablist" id="tabs" hidden>
       <button class="tab" role="tab" data-tab="partners" aria-selected="true">Партнёры<span class="n" id="nP"></span></button>
@@ -214,6 +215,11 @@ const el=(tag,attrs={},...kids)=>{const e=document.createElement(tag);for(const[
 const initials=n=>(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const today=()=>ymd(new Date());
+function passField(id,val){
+  const inp=el("input",{id,type:"password",value:val||"",autocomplete:"off",placeholder:"Необязательно"});
+  const t=el("button",{type:"button",class:"eye","aria-label":"Показать пароль",onclick:()=>{const show=inp.type==="password";inp.type=show?"text":"password";t.textContent=show?"Скрыть":"Показать"}},"Показать");
+  return el("div",{class:"f"},el("span",{},"Пароль в Атоми"),el("div",{class:"pw"},inp,t));
+}
 const QUICK=[["Через неделю",d=>d.setDate(d.getDate()+7)],["Через месяц",d=>d.setMonth(d.getMonth()+1)],["Через 3 месяца",d=>d.setMonth(d.getMonth()+3)]];
 const quickDate=fn=>{const d=new Date();fn(d);return ymd(d)};
 function nextContactField(val){
@@ -378,7 +384,7 @@ function renderClients(){
   const dueN=S.clients.filter(isDue).length;
   const chips=el("div",{class:"chips"},[["all","Все "+S.clients.length],["due","Пора связаться "+dueN],...CLIENT_STATUS.map(s=>[s,s])].map(([v,l])=>el("button",{class:"chip","aria-pressed":S.cFilter===v,onclick:()=>{S.cFilter=v;render()}},l)));
   const grid=list.length?el("div",{class:"grid"},list.map(c=>el("button",{class:"card",onclick:()=>openClient(c.id)},
-    el("div",{class:"row"},el("div",{class:"av"},initials(c.name)),el("div",{style:"min-width:0;flex:1"},el("div",{class:"nm"},c.name||"Без имени"),el("div",{class:"sub"},c.phone||"Телефон не указан")),el("span",{class:"stage "+({"Постоянный":"s4","Купил":"s3","Новый":"s1"}[c.status]||"s0")},c.status||"Новый")),
+    el("div",{class:"row"},el("div",{class:"av"},initials(c.name)),el("div",{style:"min-width:0;flex:1"},el("div",{class:"nm"},c.name||"Без имени"),el("div",{class:"sub"},[c.phone,c.atomyId&&("ID "+c.atomyId)].filter(Boolean).join(" · ")||"Телефон не указан")),el("span",{class:"stage "+({"Постоянный":"s4","Купил":"s3","Новый":"s1"}[c.status]||"s0")},c.status||"Новый")),
     c.products?el("div",{class:"sub",style:"white-space:normal"},"Покупает: "+c.products):null,
     el("div",{class:"meta"},el("span",{},c.lastOrder?"Заказ: "+fmtDate(c.lastOrder):"Заказов не было"),c.nextContact?el("span",{class:isDue(c)?"due":""},(isDue(c)?"Связаться: ":"Напомнить: ")+fmtDate(c.nextContact)):el("span",{},""))))):el("div",{class:"empty"},el("p",{},"В этом фильтре пусто."));
   return[tb,chips,grid];
@@ -434,9 +440,9 @@ function installBlock(){
   return box;
 }
 /* ---------- excel ---------- */
-const XC={ink:"FF1C2A2A",green:"FF1F6F5C",greenSoft:"FFD6EBE3",greenMid:"FF8CC7B3",warm:"FFE8894F",warmSoft:"FFFBE6D8",grey:"FFF1F4F0",line:"FFD7DED5",white:"FFFFFFFF",muted:"FF5D6B69"};
-const STAGE_FILL=["FFE3F1EC","FFE6EEF7","FFFBEFE3","FFEFE8F5","FFFFF4D6"];
-const STATUS_FILL={"Новый":"FFFBE6D8","Думает":"FFFFF4D6","Купил":"FFD6EBE3","Постоянный":"FFB9E0D1","Не актуален":"FFEDEDED"};
+const XC={ink:"FF17233B",green:"FF1D4E9E",greenSoft:"FFDBE7F8",greenMid:"FF8DB4E8",warm:"FFE89A2E",warmSoft:"FFFBEFD9",grey:"FFF3F6FB",line:"FFD5DEEB",white:"FFFFFFFF",muted:"FF5A6780"};
+const STAGE_FILL=["FFDDEBFA","FFE4F3F8","FFFBEFD9","FFEDE8F7","FFFFF4D6"];
+const STATUS_FILL={"Новый":"FFFBEFD9","Думает":"FFFFF4D6","Купил":"FFDBE7F8","Постоянный":"FFB8D2F2","Не актуален":"FFEDEDED"};
 const toDate=s=>{if(!s)return null;const [y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d))};
 function xlTitle(ws,text,sub,cols){
   ws.pageSetup={orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0,paperSize:9,margins:{left:0.3,right:0.3,top:0.4,bottom:0.4,header:0.2,footer:0.2}};
@@ -465,7 +471,7 @@ function xlEmpty(ws,row,cols,text){ws.mergeCells(row,1,row,cols);const c=ws.getC
 function buildWorkbook(ExcelJS,D){
   const wb=new ExcelJS.Workbook();wb.creator="Моя команда";wb.created=new Date();
   const own=D.isOwner,dateRu=D.date.split("-").reverse().join(".");
-  const progressFmt=(ws,col,r1,r2)=>{if(r2<r1)return;ws.addConditionalFormatting({ref:`${col}${r1}:${col}${r2}`,rules:[{type:"dataBar",minLength:0,maxLength:100,cfvo:[{type:"num",value:0},{type:"num",value:100}],color:{argb:"FF58C2A2"},gradient:false}]})};
+  const progressFmt=(ws,col,r1,r2)=>{if(r2<r1)return;ws.addConditionalFormatting({ref:`${col}${r1}:${col}${r2}`,rules:[{type:"dataBar",minLength:0,maxLength:100,cfvo:[{type:"num",value:0},{type:"num",value:100}],color:{argb:"FF6AA6F0"},gradient:false}]})};
 
   /* Команда */
   if(own){
@@ -488,7 +494,7 @@ function buildWorkbook(ExcelJS,D){
 
   /* Партнёры */
   {
-    const ws=wb.addWorksheet("Партнёры",{properties:{tabColor:{argb:"FF58C2A2"}}});
+    const ws=wb.addWorksheet("Партнёры",{properties:{tabColor:{argb:"FF6AA6F0"}}});
     const lead=own?["Чей партнёр"]:[];
     const info=[...lead,"ФИО","Телефон","ID в Атоми","Город","Дата рег."];
     const steps=ALL.map(a=>a[1]);
@@ -527,19 +533,19 @@ function buildWorkbook(ExcelJS,D){
   /* Клиенты */
   {
     const ws=wb.addWorksheet("Клиенты",{properties:{tabColor:{argb:XC.warm}}});
-    const H=[...(own?["Чей клиент"]:[]),"Имя","Телефон","Статус","Что покупает","Последний заказ","Когда связаться","Откуда пришёл","Город","Заметки"];
-    const W=[...(own?[20]:[]),22,18,14,30,15,15,16,16,34];
+    const H=[...(own?["Чей клиент"]:[]),"Имя","Телефон","ID в Атоми","Статус","Что покупает","Последний заказ","Когда связаться","Откуда пришёл","Город","Заметки"];
+    const W=[...(own?[20]:[]),22,18,13,14,30,15,15,16,16,34];
     const today=toDate(D.date);
     const due=D.clients.filter(({c})=>c.nextContact&&toDate(c.nextContact)<=today&&c.status!=="Не актуален").length;
     xlTitle(ws,"Клиенты","Выгрузка от "+dateRu+" · клиентов: "+D.clients.length+(due?" · пора связаться: "+due+" (выделены оранжевым)":""),H.length);
     const hr=ws.getRow(3);hr.values=H;hr.height=32;xlHeader(hr);W.forEach((w,i)=>ws.getColumn(i+1).width=w);
     const o=own?1:0;
     const rows=[...D.clients].sort((a,b)=>(a.owner||"").localeCompare(b.owner||"","ru")||((a.c.nextContact||"9")<(b.c.nextContact||"9")?-1:1));
-    rows.forEach(({owner,c})=>{const r=ws.addRow([...(own?[owner]:[]),c.name||"",c.phone||"",c.status||"",c.products||"",toDate(c.lastOrder),toDate(c.nextContact),c.source||"",c.city||"",c.notes||""]);
+    rows.forEach(({owner,c})=>{const r=ws.addRow([...(own?[owner]:[]),c.name||"",c.phone||"",c.atomyId||"",c.status||"",c.products||"",toDate(c.lastOrder),toDate(c.nextContact),c.source||"",c.city||"",c.notes||""]);
       r.getCell(1+o).font={name:"Arial",size:10,bold:true,color:{argb:XC.ink}};
-      const st=r.getCell(3+o);st.alignment={horizontal:"center",vertical:"middle"};if(STATUS_FILL[c.status])st.fill={type:"pattern",pattern:"solid",fgColor:{argb:STATUS_FILL[c.status]}};
-      [5,6].forEach(i=>{const cell=r.getCell(i+o);cell.numFmt="dd.mm.yyyy";cell.alignment={horizontal:"center",vertical:"middle"}});
-      if(c.nextContact&&toDate(c.nextContact)<=today&&c.status!=="Не актуален"){const cell=r.getCell(6+o);cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.warm}};cell.font={name:"Arial",size:10,bold:true,color:{argb:XC.white}}}});
+      const st=r.getCell(4+o);st.alignment={horizontal:"center",vertical:"middle"};if(STATUS_FILL[c.status])st.fill={type:"pattern",pattern:"solid",fgColor:{argb:STATUS_FILL[c.status]}};
+      [6,7].forEach(i=>{const cell=r.getCell(i+o);cell.numFmt="dd.mm.yyyy";cell.alignment={horizontal:"center",vertical:"middle"}});
+      if(c.nextContact&&toDate(c.nextContact)<=today&&c.status!=="Не актуален"){const cell=r.getCell(7+o);cell.fill={type:"pattern",pattern:"solid",fgColor:{argb:XC.warm}};cell.font={name:"Arial",size:10,bold:true,color:{argb:XC.white}}}});
     if(!rows.length)xlEmpty(ws,4,H.length,"Клиентов пока нет");
     xlBody(ws,4,H.length);
     ws.views=[{state:"frozen",xSplit:1+o,ySplit:3,showGridLines:false}];
@@ -592,12 +598,12 @@ function openPartner(id){
   const fld=(lab,key,attrs={})=>el("label",{class:"f "+(attrs.full?"full":"")},lab,el("input",{id:"pf_"+key,value:p[key]||"",...attrs,full:false}));
   const fields=el("div",{class:"fields"},
     el("label",{class:"f full"},"ФИО",el("input",{id:"pf_name",value:p.name||"",placeholder:"Имя и фамилия партнёра"})),
-    fld("Телефон","phone",{inputmode:"tel",placeholder:"+7…"}),fld("ID в Атоми","atomyId",{inputmode:"numeric"}),
-    fld("Город","city"),el("label",{class:"f"},"Дата регистрации",el("input",{id:"pf_regDate",type:"date",value:p.regDate||""})),
+    fld("Телефон","phone",{inputmode:"tel",placeholder:"+7…"}),fld("Город","city"),fld("ID в Атоми","atomyId",{inputmode:"numeric",placeholder:"Необязательно"}),passField("pf_atomyPass",p.atomyPass),
+    el("label",{class:"f"},"Дата регистрации",el("input",{id:"pf_regDate",type:"date",value:p.regDate||""})),
     el("label",{class:"f full"},"Заметки",el("textarea",{id:"pf_notes",placeholder:"Цели, сложности, о чём договорились"},p.notes||"")));
   const body=[el("div",{id:"pChecks",style:"display:grid;gap:22px"}),el("div",{class:"sec"},el("h3",{},"Данные партнёра"),fields)];
   const save=el("button",{class:"btn",onclick:async()=>{
-    const d={name:$("#pf_name").value.trim(),phone:$("#pf_phone").value.trim(),atomyId:$("#pf_atomyId").value.trim(),city:$("#pf_city").value.trim(),regDate:$("#pf_regDate").value,notes:$("#pf_notes").value.trim(),updatedAt:new Date().toISOString()};
+    const d={name:$("#pf_name").value.trim(),phone:$("#pf_phone").value.trim(),atomyId:$("#pf_atomyId").value.trim(),atomyPass:$("#pf_atomyPass").value.trim(),city:$("#pf_city").value.trim(),regDate:$("#pf_regDate").value,notes:$("#pf_notes").value.trim(),updatedAt:new Date().toISOString()};
     if(!d.name){$("#pf_name").focus();toast("Впишите имя");return}
     save.disabled=true;
     try{if(id)await base().collection("partners").doc(id).update(d);else{d.checks=sheetState.draft||{};d.createdAt=d.updatedAt;await base().collection("partners").add(d)}toast("Сохранено");closeSheet()}
@@ -626,6 +632,8 @@ function openClient(id){
     el("label",{class:"f full"},"Имя",el("input",{id:"cf_name",value:c.name||"",placeholder:"Имя клиента"})),
     el("label",{class:"f"},"Телефон",el("input",{id:"cf_phone",value:c.phone||"",inputmode:"tel",placeholder:"+7…"})),
     el("label",{class:"f"},"Статус",el("select",{id:"cf_status"},CLIENT_STATUS.map(s=>el("option",{value:s,selected:c.status===s},s)))),
+    el("label",{class:"f"},"ID в Атоми",el("input",{id:"cf_atomyId",value:c.atomyId||"",inputmode:"numeric",placeholder:"Необязательно"})),
+    passField("cf_atomyPass",c.atomyPass),
     el("label",{class:"f full"},"Что покупает / интересует",el("input",{id:"cf_products",value:c.products||"",placeholder:"ХемоХим, зубная паста, крем…"})),
     el("label",{class:"f"},"Последний заказ",el("input",{id:"cf_lastOrder",type:"date",value:c.lastOrder||""})),
     el("label",{class:"f"},"Город",el("input",{id:"cf_city",value:c.city||""})),
@@ -633,7 +641,7 @@ function openClient(id){
     el("label",{class:"f full"},"Откуда пришёл",el("input",{id:"cf_source",value:c.source||"",placeholder:"Инстаграм, знакомые…"})),
     el("label",{class:"f full"},"Заметки",el("textarea",{id:"cf_notes",placeholder:"Пожелания, о чём говорили"},c.notes||"")))];
   const save=el("button",{class:"btn",onclick:async()=>{
-    const d={};["name","phone","status","products","lastOrder","nextContact","source","city","notes"].forEach(k=>d[k]=$("#cf_"+k).value.trim());d.updatedAt=new Date().toISOString();
+    const d={};["name","phone","status","atomyId","atomyPass","products","lastOrder","nextContact","source","city","notes"].forEach(k=>d[k]=$("#cf_"+k).value.trim());d.updatedAt=new Date().toISOString();
     if(!d.name){$("#cf_name").focus();toast("Впишите имя");return}
     save.disabled=true;
     try{if(id)await base().collection("clients").doc(id).update(d);else{d.createdAt=d.updatedAt;await base().collection("clients").add(d)}toast("Сохранено");closeSheet()}
